@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.study.jun.spring.ssm.dao.UserDao">
+
+	<resultMap type="User" id="UserResult">
+		<result property="id" column="id" />
+		<result property="userName" column="name" />
+		<result property="password" column="pwd" />
+	</resultMap>
+
+	<select id="login" parameterType="User" resultMap="UserResult">
+		select * from
+		t_user where name=#{userName} and pwd=#{password}
+	</select>
+
+	<insert id="addUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user(name, pwd) VALUES (#{userName}, #{password})
+	</insert>
+
+	<insert id="addBatchUser"  parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user (name, pwd)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(
+			#{item.userName,jdbcType=VARCHAR},
+			#{item.password,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateUser" parameterType="User">
+		update t_user set pwd = ${password} where id = ${id}
+	</update>
+
+	<update id="updateBatchUser" parameterType="java.util.List">
+		update t_user set
+		name=
+		<foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+			when #{item.id} then #{item.userName}
+		</foreach>
+		, pwd=
+		<foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+			when #{item.id} then #{item.password}
+		</foreach>
+
+		where ID in
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+
+
+	<delete id="deleteUser" parameterType="Integer">
+		delete from t_user where id = #{id}
+	</delete>
+
+	<delete id="deleteBatchUser" parameterType="Integer">
+		delete from t_user where id in
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</delete>
+</mapper> 
